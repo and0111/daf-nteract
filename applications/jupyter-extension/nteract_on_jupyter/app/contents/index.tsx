@@ -2,7 +2,7 @@
 import * as actions from "@nteract/actions";
 import { CellType, ImmutableNotebook } from "@nteract/commutable";
 import { HeaderEditor } from "@nteract/connected-components";
-import { NotebookMenu } from "@nteract/connected-components";
+import { NotebookMenu, NewNotebookMenu } from "@nteract/connected-components";
 import { HeaderDataProps } from "@nteract/connected-components/lib/header-editor";
 import { AppState, ContentRef, HostRecord, selectors } from "@nteract/core";
 import {
@@ -110,7 +110,8 @@ class Contents extends React.PureComponent<ContentsProps, IContentsState> {
               >
                 {contentType === "notebook" ? (
                   <React.Fragment>
-                    <NotebookMenu contentRef={contentRef} />
+                    <NewNotebookMenu contentRef={contentRef} />
+                    {/* <NotebookMenu contentRef={contentRef} /> */}
                     {showHeaderEditor ? (
                       <HeaderEditor
                         editable

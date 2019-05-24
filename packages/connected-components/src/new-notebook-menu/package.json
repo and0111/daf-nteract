@@ -1,0 +1,14 @@
+{
+    "name": "@nteract/connectable-components.new-notebook-menu",
+    "author": {
+      "name": "Andrea Simonetta",
+      "email": "and.simonetta@gmail.com"
+    },
+    "main": "./NotebookMenuContainer.tsx",
+    "version": "0.1.0",
+    "license": "BSD-3-Clause",
+    "private": true,
+    "devDependencies": {
+      "@blueprintjs/core": "^3.7.0"
+    }
+  }
