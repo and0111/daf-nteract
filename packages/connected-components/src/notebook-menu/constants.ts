@@ -28,19 +28,3 @@ export const MENU_ITEM_ACTIONS = {
   INTERRUPT_KERNEL: "interrupt-kernel",
   PUBLISH_TO_BOOKSTORE: "publish-to-bookstore"
 };
-
-// These are top-level-menu or sub-menu keys in case we need interim look-ups
-// when users hover over sub-menu titles.
-export const MENUS = {
-  FILE: "file",
-  EDIT: "edit",
-  EDIT_SET_CELL_TYPE: "cell-set-cell-type",
-  INSERT: "insert",
-  CELL: "cell",
-  CELL_CREATE_CELL: "cell-create-cell",
-  VIEW: "view",
-  VIEW_THEMES: "view-themes",
-  RUNTIME: "runtime",
-  RUNTIME_CHANGE_KERNEL: "runtime-change-kernel",
-  HELP: "help"
-};
