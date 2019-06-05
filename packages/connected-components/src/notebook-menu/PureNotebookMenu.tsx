@@ -8,35 +8,45 @@ import {
   KernelspecsRef
 } from "@nteract/types";
 import React, { SyntheticEvent, CSSProperties } from "react";
-// import styled from "styled-components";
 import {
-  // ButtonGroup,
-  // Button,
-  // Popover,
   Menu,
   MenuItem,
   MenuDivider,
-  // Position,
-  // Classes
+  Position,
+  PopoverInteractionKind,
+  IMenuItemProps
 } from "@blueprintjs/core";
 
 // Local modules
-import { MENU_ITEM_ACTIONS } from "./constants";
+import { MENU_ITEM_LABELS, MENU_ITEM_ACTIONS } from "./constants";
 import { IconNames } from "@blueprintjs/icons";
 
-// To allow actions that can take dynamic arguments (like selecting a kernel
-// based on the host's kernelspecs), we have some simple utility functions to
-// stringify/parse actions/arguments.
-const createActionKey = (action: string, ...args: any[]) =>
-  [action, ...args].join(":");
-const parseActionKey = (key: string) => key.split(":");
-
-// Styled Components
-// const StickyMenu = styled(ButtonGroup)`
-//   position: sticky;
-//   top: 0;
-//   z-index: 10000;
-// `;
+const {
+  TOGGLE_EDITOR,
+  SAVE_NOTEBOOK,
+  DOWNLOAD_NOTEBOOK,
+  COPY_CELL,
+  CUT_CELL,
+  PASTE_CELL,
+  CREATE_CODE_CELL,
+  CREATE_MARKDOWN_CELL,
+  SET_CELL_TYPE_CODE,
+  SET_CELL_TYPE_MARKDOWN,
+  EXECUTE_ALL_CELLS,
+  EXECUTE_ALL_CELLS_BELOW,
+  UNHIDE_ALL,
+  CLEAR_ALL_OUTPUTS,
+  SET_THEME_DARK,
+  SET_THEME_LIGHT,
+  OPEN_ABOUT,
+  INTERRUPT_KERNEL,
+  RESTART_KERNEL,
+  RESTART_AND_CLEAR_OUTPUTS,
+  RESTART_AND_RUN_ALL_OUTPUTS,
+  KILL_KERNEL,
+  CHANGE_KERNEL,
+  PUBLISH_TO_BOOKSTORE
+} = MENU_ITEM_ACTIONS;
 
 export interface PureNotebookMenuProps {
   /**
@@ -106,14 +116,31 @@ export interface PureNotebookMenuProps {
   onPublish?: (payload: { contentRef: ContentRef }) => void;
 }
 
+// To allow actions that can take dynamic arguments (like selecting a kernel
+// based on the host's kernelspecs), we have some simple utility functions to
+// stringify/parse actions/arguments.
+const createActionKey = (action: string, ...args: any[]) =>
+  [action, ...args].join(":");
+const parseActionKey = (key: string) => key.split(":");
+
+const Dropdown = (props: IMenuItemProps) => (
+  <MenuItem
+    {...props}
+    popoverProps={{
+      interactionKind: PopoverInteractionKind.CLICK,
+      position: Position.BOTTOM
+    }}
+  />
+);
+
 class PureNotebookMenu extends React.PureComponent<PureNotebookMenuProps> {
   handleActionClick = (e: SyntheticEvent, action: string, ...args: any[]) => {
+    // This handler avoid to reimplement the old `handleClick` method
     e.preventDefault();
     const currentKey = { key: createActionKey(action, ...args) };
-    console.log(`PureNotebookenu::handleActionmClick -> ${currentKey.key}`);
+    // console.log(`::handleActionClick -> ${currentKey.key}`);
     this.handleClick(currentKey);
   };
-
   handleClick = ({ key }: { key: string }) => {
     const {
       saveNotebook,
@@ -142,26 +169,26 @@ class PureNotebookMenu extends React.PureComponent<PureNotebookMenuProps> {
     } = this.props;
     const [action, ...args] = parseActionKey(key);
     switch (action) {
-      case MENU_ITEM_ACTIONS.TOGGLE_EDITOR:
+      case TOGGLE_EDITOR:
         toggleNotebookHeaderEditor &&
           toggleNotebookHeaderEditor({ contentRef: currentContentRef });
         break;
-      case MENU_ITEM_ACTIONS.SAVE_NOTEBOOK:
+      case SAVE_NOTEBOOK:
         saveNotebook && saveNotebook({ contentRef: currentContentRef });
         break;
-      case MENU_ITEM_ACTIONS.DOWNLOAD_NOTEBOOK:
+      case DOWNLOAD_NOTEBOOK:
         downloadNotebook && downloadNotebook({ contentRef: currentContentRef });
         break;
-      case MENU_ITEM_ACTIONS.COPY_CELL:
+      case COPY_CELL:
         copyCell && copyCell({ contentRef: currentContentRef });
         break;
-      case MENU_ITEM_ACTIONS.CUT_CELL:
+      case CUT_CELL:
         cutCell && cutCell({ contentRef: currentContentRef });
         break;
-      case MENU_ITEM_ACTIONS.PASTE_CELL:
+      case PASTE_CELL:
         pasteCell && pasteCell({ contentRef: currentContentRef });
         break;
-      case MENU_ITEM_ACTIONS.CREATE_CODE_CELL:
+      case CREATE_CODE_CELL:
         createCellBelow &&
           createCellBelow({
             cellType: "code",
@@ -169,7 +196,7 @@ class PureNotebookMenu extends React.PureComponent<PureNotebookMenuProps> {
             contentRef: currentContentRef
           });
         break;
-      case MENU_ITEM_ACTIONS.CREATE_MARKDOWN_CELL:
+      case CREATE_MARKDOWN_CELL:
         createCellBelow &&
           createCellBelow({
             cellType: "markdown",
@@ -177,7 +204,7 @@ class PureNotebookMenu extends React.PureComponent<PureNotebookMenuProps> {
             contentRef: currentContentRef
           });
         break;
-      case MENU_ITEM_ACTIONS.SET_CELL_TYPE_CODE:
+      case SET_CELL_TYPE_CODE:
         changeCellType &&
           changeCellType({
             to: "code",
@@ -185,45 +212,44 @@ class PureNotebookMenu extends React.PureComponent<PureNotebookMenuProps> {
           });
 
         break;
-      case MENU_ITEM_ACTIONS.SET_CELL_TYPE_MARKDOWN:
+      case SET_CELL_TYPE_MARKDOWN:
         changeCellType &&
           changeCellType({
             to: "markdown",
             contentRef: currentContentRef
           });
         break;
-      case MENU_ITEM_ACTIONS.EXECUTE_ALL_CELLS:
+      case EXECUTE_ALL_CELLS:
         executeAllCells && executeAllCells({ contentRef: currentContentRef });
         break;
-      case MENU_ITEM_ACTIONS.EXECUTE_ALL_CELLS_BELOW:
+      case EXECUTE_ALL_CELLS_BELOW:
         executeAllCellsBelow &&
           executeAllCellsBelow({ contentRef: currentContentRef });
         break;
-      case MENU_ITEM_ACTIONS.UNHIDE_ALL:
+      case UNHIDE_ALL:
         unhideAll &&
           unhideAll({
             outputHidden: false,
             inputHidden: false,
             contentRef: currentContentRef
           });
-
         break;
-      case MENU_ITEM_ACTIONS.CLEAR_ALL_OUTPUTS:
+      case CLEAR_ALL_OUTPUTS:
         clearAllOutputs && clearAllOutputs({ contentRef: currentContentRef });
         break;
-      case MENU_ITEM_ACTIONS.SET_THEME_DARK:
+      case SET_THEME_DARK:
         setTheme && setTheme("dark");
         break;
-      case MENU_ITEM_ACTIONS.SET_THEME_LIGHT:
+      case SET_THEME_LIGHT:
         setTheme && setTheme("light");
         break;
-      case MENU_ITEM_ACTIONS.OPEN_ABOUT:
+      case OPEN_ABOUT:
         openAboutModal && openAboutModal();
         break;
-      case MENU_ITEM_ACTIONS.INTERRUPT_KERNEL:
+      case INTERRUPT_KERNEL:
         interruptKernel && interruptKernel({ kernelRef: currentKernelRef });
         break;
-      case MENU_ITEM_ACTIONS.RESTART_KERNEL:
+      case RESTART_KERNEL:
         restartKernel &&
           restartKernel({
             outputHandling: "None",
@@ -231,25 +257,25 @@ class PureNotebookMenu extends React.PureComponent<PureNotebookMenuProps> {
             contentRef: currentContentRef
           });
         break;
-      case MENU_ITEM_ACTIONS.RESTART_AND_CLEAR_OUTPUTS:
+      case RESTART_AND_CLEAR_OUTPUTS:
         restartKernelAndClearOutputs &&
           restartKernelAndClearOutputs({
             kernelRef: currentKernelRef,
             contentRef: currentContentRef
           });
         break;
-      case MENU_ITEM_ACTIONS.RESTART_AND_RUN_ALL_OUTPUTS:
+      case RESTART_AND_RUN_ALL_OUTPUTS:
         restartKernelAndRunAllOutputs &&
           restartKernelAndRunAllOutputs({
             kernelRef: currentKernelRef,
             contentRef: currentContentRef
           });
         break;
-      case MENU_ITEM_ACTIONS.KILL_KERNEL:
+      case KILL_KERNEL:
         killKernel &&
           killKernel({ restarting: false, kernelRef: currentKernelRef });
         break;
-      case MENU_ITEM_ACTIONS.CHANGE_KERNEL:
+      case CHANGE_KERNEL:
         changeKernelByName &&
           changeKernelByName({
             oldKernelRef: currentKernelRef,
@@ -257,7 +283,7 @@ class PureNotebookMenu extends React.PureComponent<PureNotebookMenuProps> {
             kernelSpecName: args[0]
           });
         break;
-      case MENU_ITEM_ACTIONS.PUBLISH_TO_BOOKSTORE:
+      case PUBLISH_TO_BOOKSTORE:
         onPublish && onPublish({ contentRef: currentContentRef });
         break;
       default:
@@ -267,7 +293,6 @@ class PureNotebookMenu extends React.PureComponent<PureNotebookMenuProps> {
 
   render(): JSX.Element {
     const { bookstoreEnabled, currentKernelspecs } = this.props;
-    // const { BOTTOM } = Position;
     const {
       DOCUMENT_OPEN,
       FLOPPY_DISK,
@@ -304,7 +329,7 @@ class PureNotebookMenu extends React.PureComponent<PureNotebookMenuProps> {
 
     return (
       <Menu style={notebookMenuStyles}>
-        <MenuItem
+        <Dropdown
           text="File"
           children={
             <Menu>
@@ -316,237 +341,190 @@ class PureNotebookMenu extends React.PureComponent<PureNotebookMenuProps> {
               />
               <MenuItem
                 onClick={(e: SyntheticEvent) =>
-                  this.handleActionClick(e, MENU_ITEM_ACTIONS.SAVE_NOTEBOOK)
+                  this.handleActionClick(e, SAVE_NOTEBOOK)
                 }
-                // actionkey={MENU_ITEM_ACTIONS.SAVE_NOTEBOOK}
-                text="Save"
+                text={MENU_ITEM_LABELS.SAVE_NOTEBOOK}
                 icon={FLOPPY_DISK}
               />
               <MenuItem
                 onClick={(e: SyntheticEvent) =>
-                  this.handleActionClick(e, MENU_ITEM_ACTIONS.DOWNLOAD_NOTEBOOK)
+                  this.handleActionClick(e, DOWNLOAD_NOTEBOOK)
                 }
-                // actionkey={MENU_ITEM_ACTIONS.DOWNLOAD_NOTEBOOK}
-                text="Download (.ipynb)"
+                text={MENU_ITEM_LABELS.DOWNLOAD_NOTEBOOK}
                 icon={DOWNLOAD}
               />
               {bookstoreEnabled ? (
                 <MenuItem
                   onClick={(e: SyntheticEvent) =>
-                    this.handleActionClick(
-                      e,
-                      MENU_ITEM_ACTIONS.PUBLISH_TO_BOOKSTORE
-                    )
+                    this.handleActionClick(e, PUBLISH_TO_BOOKSTORE)
                   }
-                  // actionkey={MENU_ITEM_ACTIONS.PUBLISH_TO_BOOKSTORE}
-                  text="Publish"
+                  text={MENU_ITEM_LABELS.PUBLISH_TO_BOOKSTORE}
                   icon={CLOUD_UPLOAD}
                 />
               ) : null}
             </Menu>
           }
         />
-        <MenuItem
+        <Dropdown
           text="Edit"
           children={
             <Menu>
               <MenuItem
                 onClick={(e: SyntheticEvent) =>
-                  this.handleActionClick(e, MENU_ITEM_ACTIONS.CUT_CELL)
+                  this.handleActionClick(e, CUT_CELL)
                 }
-                // actionkey={MENU_ITEM_ACTIONS.CUT_CELL}
-                text="Cut Cell"
+                text={MENU_ITEM_LABELS.CUT_CELL}
                 icon={CUT}
               />
               <MenuItem
                 onClick={(e: SyntheticEvent) =>
-                  this.handleActionClick(e, MENU_ITEM_ACTIONS.COPY_CELL)
+                  this.handleActionClick(e, COPY_CELL)
                 }
-                // actionkey={MENU_ITEM_ACTIONS.COPY_CELL}
-                text="Copy Cell"
+                text={MENU_ITEM_LABELS.COPY_CELL}
                 icon={DUPLICATE}
               />
               <MenuItem
                 onClick={(e: SyntheticEvent) =>
-                  this.handleActionClick(e, MENU_ITEM_ACTIONS.PASTE_CELL)
+                  this.handleActionClick(e, PASTE_CELL)
                 }
-                // actionkey={MENU_ITEM_ACTIONS.PASTE_CELL}
-                text="Paste Cell Below"
+                text={MENU_ITEM_LABELS.PASTE_CELL}
                 icon={CLIPBOARD}
               />
               <MenuDivider />
               <MenuItem text="Change Cell Type" icon={SWAP_HORIZONTAL}>
                 <MenuItem
                   onClick={(e: SyntheticEvent) =>
-                    this.handleActionClick(
-                      e,
-                      MENU_ITEM_ACTIONS.SET_CELL_TYPE_CODE
-                    )
+                    this.handleActionClick(e, SET_CELL_TYPE_CODE)
                   }
-                  // actionkey={MENU_ITEM_ACTIONS.SET_CELL_TYPE_CODE}
-                  text="Code"
+                  text={MENU_ITEM_LABELS.SET_CELL_TYPE_CODE}
                 />
                 <MenuItem
                   onClick={(e: SyntheticEvent) =>
-                    this.handleActionClick(
-                      e,
-                      MENU_ITEM_ACTIONS.SET_CELL_TYPE_MARKDOWN
-                    )
+                    this.handleActionClick(e, SET_CELL_TYPE_MARKDOWN)
                   }
-                  // actionkey={MENU_ITEM_ACTIONS.SET_CELL_TYPE_MARKDOWN}
-                  text="Markdown"
+                  text={MENU_ITEM_LABELS.SET_CELL_TYPE_MARKDOWN}
                 />
               </MenuItem>
             </Menu>
           }
         />
-        <MenuItem
+        <Dropdown
           text="View"
           children={
             <Menu>
               <MenuItem
                 onClick={(e: SyntheticEvent) =>
-                  this.handleActionClick(e, MENU_ITEM_ACTIONS.TOGGLE_EDITOR)
+                  this.handleActionClick(e, TOGGLE_EDITOR)
                 }
-                // actionkey={MENU_ITEM_ACTIONS.TOGGLE_EDITOR}
-                text="Notebook Header"
+                text={MENU_ITEM_LABELS.TOGGLE_EDITOR}
                 icon={WIDGET_HEADER}
               />
-              <MenuItem text="themes" icon={STYLE}>
+              <MenuItem text="Themes" icon={STYLE}>
                 <MenuItem
                   onClick={(e: SyntheticEvent) =>
-                    this.handleActionClick(e, MENU_ITEM_ACTIONS.SET_THEME_LIGHT)
+                    this.handleActionClick(e, SET_THEME_LIGHT)
                   }
-                  // actionkey={MENU_ITEM_ACTIONS.SET_THEME_LIGHT}
-                  text="light"
+                  text={MENU_ITEM_LABELS.SET_THEME_LIGHT}
                 />
                 <MenuItem
                   onClick={(e: SyntheticEvent) =>
-                    this.handleActionClick(e, MENU_ITEM_ACTIONS.SET_THEME_DARK)
+                    this.handleActionClick(e, SET_THEME_DARK)
                   }
-                  // actionkey={MENU_ITEM_ACTIONS.SET_THEME_DARK}
-                  text="dark"
+                  text={MENU_ITEM_LABELS.SET_THEME_DARK}
                 />
               </MenuItem>
             </Menu>
           }
         />
-        <MenuItem
+        <Dropdown
           text="Cell"
           children={
             <Menu>
               <MenuItem
                 onClick={(e: SyntheticEvent) =>
-                  this.handleActionClick(e, MENU_ITEM_ACTIONS.EXECUTE_ALL_CELLS)
+                  this.handleActionClick(e, EXECUTE_ALL_CELLS)
                 }
-                // actionkey={MENU_ITEM_ACTIONS.EXECUTE_ALL_CELLS}
-                text="Run All Cells"
+                text={MENU_ITEM_LABELS.EXECUTE_ALL_CELLS}
                 icon={PLAY}
               />
               <MenuItem
                 onClick={(e: SyntheticEvent) =>
-                  this.handleActionClick(
-                    e,
-                    MENU_ITEM_ACTIONS.EXECUTE_ALL_CELLS_BELOW
-                  )
+                  this.handleActionClick(e, EXECUTE_ALL_CELLS_BELOW)
                 }
-                // actionkey={MENU_ITEM_ACTIONS.EXECUTE_ALL_CELLS_BELOW}
-                text="Run All Cells Below"
+                text={MENU_ITEM_LABELS.EXECUTE_ALL_CELLS_BELOW}
                 icon={PLAY}
               />
               <MenuDivider />
-              <MenuItem text="New Cell" icon={INSERT}>
+              <MenuItem text="Create New" icon={INSERT}>
                 <MenuItem
                   onClick={(e: SyntheticEvent) =>
-                    this.handleActionClick(
-                      e,
-                      MENU_ITEM_ACTIONS.CREATE_CODE_CELL
-                    )
+                    this.handleActionClick(e, CREATE_CODE_CELL)
                   }
-                  // actionkey={MENU_ITEM_ACTIONS.CREATE_CODE_CELL}
-                  text="Code"
+                  text={MENU_ITEM_LABELS.CREATE_CODE_CELL}
                 />
                 <MenuItem
                   onClick={(e: SyntheticEvent) =>
-                    this.handleActionClick(
-                      e,
-                      MENU_ITEM_ACTIONS.CREATE_MARKDOWN_CELL
-                    )
+                    this.handleActionClick(e, CREATE_MARKDOWN_CELL)
                   }
-                  // actionkey={MENU_ITEM_ACTIONS.CREATE_MARKDOWN_CELL}
-                  text="Markdown"
+                  text={MENU_ITEM_LABELS.CREATE_MARKDOWN_CELL}
                 />
               </MenuItem>
               <MenuDivider />
               <MenuItem
                 onClick={(e: SyntheticEvent) =>
-                  this.handleActionClick(e, MENU_ITEM_ACTIONS.CLEAR_ALL_OUTPUTS)
+                  this.handleActionClick(e, CLEAR_ALL_OUTPUTS)
                 }
-                // actionkey={MENU_ITEM_ACTIONS.CLEAR_ALL_OUTPUTS}
-                text="Clear All Outputs"
+                text={MENU_ITEM_LABELS.CLEAR_ALL_OUTPUTS}
                 icon={ERASER}
               />
-
               <MenuItem
                 onClick={(e: SyntheticEvent) =>
-                  this.handleActionClick(e, MENU_ITEM_ACTIONS.UNHIDE_ALL)
+                  this.handleActionClick(e, UNHIDE_ALL)
                 }
-                // actionkey={MENU_ITEM_ACTIONS.UNHIDE_ALL}
-                text="Unhide All Input and Output"
+                text={MENU_ITEM_LABELS.UNHIDE_ALL}
                 icon={EYE_OFF}
               />
             </Menu>
           }
         />
-        <MenuItem
+        <Dropdown
           text="Runtime"
           children={
             <Menu>
               <MenuItem
                 onClick={(e: SyntheticEvent) =>
-                  this.handleActionClick(e, MENU_ITEM_ACTIONS.INTERRUPT_KERNEL)
+                  this.handleActionClick(e, INTERRUPT_KERNEL)
                 }
-                // actionkey={MENU_ITEM_ACTIONS.INTERRUPT_KERNEL}
-                text="Interrupt"
+                text={MENU_ITEM_LABELS.INTERRUPT_KERNEL}
                 icon={PAUSE}
               />
               <MenuDivider />
               <MenuItem
                 onClick={(e: SyntheticEvent) =>
-                  this.handleActionClick(e, MENU_ITEM_ACTIONS.KILL_KERNEL)
+                  this.handleActionClick(e, KILL_KERNEL)
                 }
-                // actionkey={MENU_ITEM_ACTIONS.KILL_KERNEL}
-                text="Halt"
+                text={MENU_ITEM_LABELS.KILL_KERNEL}
                 icon={STOP}
               />
               <MenuItem
                 onClick={(e: SyntheticEvent) =>
-                  this.handleActionClick(e, MENU_ITEM_ACTIONS.RESTART_KERNEL)
+                  this.handleActionClick(e, RESTART_KERNEL)
                 }
-                // actionkey={MENU_ITEM_ACTIONS.RESTART_KERNEL}
-                text="Restart"
+                text={MENU_ITEM_LABELS.RESTART_KERNEL}
                 icon={REPEAT}
               />
               <MenuItem
                 onClick={(e: SyntheticEvent) =>
-                  this.handleActionClick(
-                    e,
-                    MENU_ITEM_ACTIONS.RESTART_AND_CLEAR_OUTPUTS
-                  )
+                  this.handleActionClick(e, RESTART_AND_CLEAR_OUTPUTS)
                 }
-                // actionkey={MENU_ITEM_ACTIONS.RESTART_AND_CLEAR_OUTPUTS}
-                text="Restart and Clear All Cells"
+                text={MENU_ITEM_LABELS.RESTART_AND_CLEAR_OUTPUTS}
                 icon={REFRESH}
               />
               <MenuItem
                 onClick={(e: SyntheticEvent) =>
-                  this.handleActionClick(
-                    e,
-                    MENU_ITEM_ACTIONS.RESTART_AND_RUN_ALL_OUTPUTS
-                  )
+                  this.handleActionClick(e, RESTART_AND_RUN_ALL_OUTPUTS)
                 }
-                // actionkey={MENU_ITEM_ACTIONS.RESTART_AND_RUN_ALL_OUTPUTS}
-                text="Restart and Run All Cells"
+                text={MENU_ITEM_LABELS.RESTART_AND_RUN_ALL_OUTPUTS}
                 icon={REDO}
               />
               <MenuDivider />
@@ -555,44 +533,37 @@ class PureNotebookMenu extends React.PureComponent<PureNotebookMenuProps> {
                 text="Change Kernel"
                 icon={EXCHANGE}
               >
-                {currentKernelspecs
-                  ? currentKernelspecs.byName
-                      .keySeq()
-                      .map((name: string) => [
-                        name,
-                        currentKernelspecs.byName.getIn([name, "displayName"])
-                      ])
-                      .toArray()
-                      .map(([name, displayName]: string[]) => {
-                        return (
-                          <MenuItem
-                            onClick={(e: SyntheticEvent) =>
-                              this.handleActionClick(
-                                e,
-                                MENU_ITEM_ACTIONS.CHANGE_KERNEL,
-                                name
-                              )
-                            }
-                            // actionkey={MENU_ITEM_ACTIONS.CHANGE_KERNEL}
-                            text={displayName}
-                          />
-                        );
-                      })
-                  : null}
+                {currentKernelspecs &&
+                  currentKernelspecs.byName
+                    .keySeq()
+                    .map((name: string) => [
+                      name,
+                      currentKernelspecs.byName.getIn([name, "displayName"])
+                    ])
+                    .toArray()
+                    .map(([name, displayName]: string[]) => {
+                      return (
+                        <MenuItem
+                          onClick={(e: SyntheticEvent) =>
+                            this.handleActionClick(e, CHANGE_KERNEL, name)
+                          }
+                          text={displayName}
+                        />
+                      );
+                    })}
               </MenuItem>
             </Menu>
           }
         />
-        <MenuItem
+        <Dropdown
           text="Help"
           children={
             <Menu>
               <MenuItem
                 onClick={(e: SyntheticEvent) =>
-                  this.handleActionClick(e, MENU_ITEM_ACTIONS.OPEN_ABOUT)
+                  this.handleActionClick(e, OPEN_ABOUT)
                 }
-                // actionkey={MENU_ITEM_ACTIONS.OPEN_ABOUT}
-                text="About"
+                text={MENU_ITEM_LABELS.OPEN_ABOUT}
                 icon={HELP}
               />
             </Menu>
